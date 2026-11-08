@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>মিষ্টি AI V4 - সব জানে</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:sans-serif;background:#0f0c29;color:white;padding:10px;text-align:center}
+.badge{background:linear-gradient(90deg,#00ff88,#00d4ff);color:#000;font-weight:bold;padding:8px 14px;border-radius:20px;font-size:14px}
+.card{background:white;color:#222;border-radius:22px;padding:14px;margin-top:10px}
+h1{margin:0;color:#ff2e7e;font-size:28px}
+p{margin:4px;color:#666;font-size:13px}
+#face{font-size:85px}
+#msg{background:#f1f2f6;color:#111;padding:15px;border-radius:18px;min-height:90px;font-size:19px;text-align:left;line-height:1.5;border-left:6px solid #00ff88;white-space:pre-wrap;word-break:break-word}
+label{font-weight:bold;text-align:left;display:block;margin:14px 0 5px;color:#00ff88}
+input{width:100%;padding:14px;font-size:18px;border-radius:14px;border:none;outline:none}
+video{width:100%;border-radius:18px;border:3px solid #00ff88;background:#000;min-height:180px}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+button{padding:13px 16px;border:none;border-radius:50px;font-weight:bold;font-size:16px;color:white;cursor:pointer}
+.pink{background:#ff2e7e}.blue{background:#0984e3}.green{background:#00b894}.orange{background:#e17055}
+.foot{background:white;color:#333;padding:10px;border-radius:14px;font-size:12px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="badge">⚡ V4 • NO KEY • সব জানে</div>
+<div class="card"><h1>👧 মিষ্টি AI V4</h1><p>পৃথিবীর সব প্রশ্নের উত্তর • যা দেখবে তাই বলবে • ১ সেকেন্ডে ভাববে</p></div>
+<div id="face">😊</div>
+<div id="msg">হাই! আমি মিষ্টি V4! একদম নতুন! নামটা লিখো, যেকোনো প্রশ্ন করো!</div>
+<label>① তোমার নাম</label>
+<input id="nameBox" placeholder="যেমন: রিমন">
+<div class="row"><button class="pink" onclick="saveName()">💾 নাম মনে রাখো</button></div>
+<label>② ক্যামেরা - যা দেখবে তাই বলবে</label>
+<video id="vid" autoplay playsinline muted></video>
+<div class="row"><button class="blue" onclick="startCam()">📷 ক্যামেরা চালু</button><button class="orange" onclick="seeAndSolve()">👀 দেখে সমাধান করো</button></div>
+<label>③ যেকোনো প্রশ্ন - পৃথিবীর সবকিছু</label>
+<input id="q" placeholder="যেমন: বাংলাদেশ কি? / ২৫*৪ কত? / ইট কি দিয়ে বানায়?">
+<div class="row"><button class="pink" onclick="ask()">💬 তাড়াতাড়ি বলো</button><button class="green" onclick="startListen()">🎤 মুখে বলো</button></div>
+<div class="foot">⚠️ Chrome দিয়ে খুলুন তাহলেই ক্যামেরা + ভয়েস চলবে<br><b>মিষ্টি AI V4</b> • Made by রিমন • Khulna</div>
+<canvas id="cap" style="display:none"></canvas>
+<script>
+let voices=[];
+function loadV(){voices=speechSynthesis.getVoices();}
+speechSynthesis.onvoiceschanged=loadV;loadV();
+let myName=localStorage.getItem('misti_v4_name')||'';
+if(myName)document.getElementById('nameBox').value=myName;
+let streamOn=false;let cache={};let isThinking=false;
+function saveName(){myName=document.getElementById('nameBox').value.trim();if(!myName){speakText('আগে তোমার নামটা লিখো!');return;}localStorage.setItem('misti_v4_name',myName);speakText('বাহ '+myName+'! আমি মিষ্টি V4! তোমার নাম মনে রাখলাম। এখন যেকোনো প্রশ্ন করো!');}
+function speakText(t){
+if(!t||t.includes('Free limit')||t.includes('Please wait')||t.includes('per IP')||t.includes('NOT_FOUND')||t.includes('pollinations')||t.trim().startsWith('{')){t='একটু দাঁড়াও '+(myName||'বন্ধু')+'... ফ্রি AI একটু রেস্ট নিচ্ছে। ১০ সেকেন্ড পর আবার জিজ্ঞাসা করো!';}
+document.getElementById('msg').innerText=t;document.getElementById('face').innerText='😍';
+let u=new SpeechSynthesisUtterance(t);u.lang='bn-BD';u.rate=1.05;u.pitch=1.25;
+let f=voices.find(v=>v.lang&&v.lang.includes('bn'));if(f)u.voice=f;
+u.onend=()=>{document.getElementById('face').innerText='😊';};
+speechSynthesis.cancel();speechSynthesis.speak(u);}
+async function startCam(){try{let s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});document.getElementById('vid').srcObject=s;streamOn=true;speakText('ক্যামেরা চালু '+(myName||'বন্ধু')+'! এখন যেকোনো জিনিস দেখাও, আমি বলে দিবো এটা কি!');}catch(e){speakText('ক্যামেরা চালু হচ্ছে না। Chrome দিয়ে খুলে অনুমতি দাও।');}}
+function analyzeCamera(){let vid=document.getElementById('vid');let c=document.getElementById('cap');c.width=100;c.height=100;let ctx=c.getContext('2d');ctx.drawImage(vid,0,0,100,100);let d=ctx.getImageData(0,0,100,100).data;let bright=0,brick=0,skin=0,green=0,blue=0,white=0,black=0,total=0;for(let i=0;i<d.length;i+=4){let R=d[i],G=d[i+1],B=d[i+2];bright+=(R+G+B)/3;total++;if(R>110&&R<215&&G>50&&G<125&&B<100&&R>G+25)brick++;if(R>150&&G>100&&G<185&&B>70&&B<165)skin++;if(G>80&&G>R+12&&G>B+12)green++;if(B>95&&B>R+18)blue++;if(R>200&&G>200&&B>200)white++;if(R<50&&G<50&&B<50)black++;}bright/=total;let p=v=>Math.round(v/total*100);return{bright:Math.round(bright),brick:p(brick),skin:p(skin),green:p(green),blue:p(blue),white:p(white),black:p(black)};}
+function guessFromCam(a){if(a.brick>12)return{what:'ইটের দেওয়াল / ইট',detail:'লাল ইট '+a.brick+'% দেখা যাচ্ছে। এটা দিয়ে বাড়ি বানানো হয়।'};if(a.skin>28)return{what:'মানুষের মুখ / মানুষ',detail:'মানুষের ত্বকের রঙ '+a.skin+'% দেখা যাচ্ছে।'};if(a.green>28)return{what:'গাছ / সবুজ পাতা / মাঠ',detail:'সবুজ রঙ '+a.green+'% দেখা যাচ্ছে।'};if(a.blue>28)return{what:'আকাশ / নীল জামা / নীল জিনিস',detail:'নীল রঙ '+a.blue+'% দেখা যাচ্ছে।'};if(a.white>45)return{what:'সাদা দেওয়াল / কাগজ / সাদা জিনিস',detail:'সাদা রঙ '+a.white+'% দেখা যাচ্ছে।'};if(a.black>45)return{what:'অন্ধকার / কালো জিনিস',detail:'আলো কম, '+a.black+'% কালো।'};if(a.bright<55)return{what:'অন্ধকার ঘর',detail:'আলো কম।'};return{what:'ঘরের জিনিস / টেবিল / বই / ফোন',detail:'ঘরের সাধারণ রঙ, উজ্জ্বলতা '+a.bright};}
+
+function fastLocal(q){let s=q.toLowerCase();let n=myName||'বন্ধু';let db={'তোমার নাম':'আমি মিষ্টি AI V4 '+n+'! আমি সব জানি!','তুমি কে':'আমি মিষ্টি AI V4, তোমার বেস্ট ফ্রেন্ড! আমাকে বানাইছে রিমন!','কেমন আছ':'ভালো আছি '+n+'! তুমি কেমন আছো?','রাজধানী':'বাংলাদেশের রাজধানী ঢাকা!','বাংলাদেশ':'বাংলাদেশ দক্ষিণ এশিয়ার সুন্দর দেশ। রাজধানী ঢাকা। জাতীয় মাছ ইলিশ, ফল কাঁঠাল, ফুল শাপলা, পশু রয়েল বেঙ্গল টাইগার।','ইট':'ইট দিয়ে বাড়ি বানানো হয়। লাল মাটি পুড়িয়ে ইট বানানো হয়। একটা ইটের দাম প্রায় ১২-১৫ টাকা।','গরু':'গরু গৃহপালিত প্রাণী। ঘাস খায়, দুধ দেয়।','পানি':'পানির সংকেত H2O। পানি ছাড়া আমরা বাঁচতে পারবো না। দিনে ৮ গ্লাস পানি খাওয়া উচিত।','সূর্য':'সূর্য একটা নক্ষত্র। সূর্য থেকে আমরা আলো আর তাপ পাই। সূর্য পূর্ব দিকে উঠে।','চাঁদ':'চাঁদ পৃথিবীর একমাত্র উপগ্রহ। চাঁদ রাতে আলো দেয়।','কুকুর':'কুকুর মানুষের সবচেয়ে বিশ্বস্ত বন্ধু প্রাণী।','বিড়াল':'বিড়াল খুব সুন্দর প্রাণী। বিড়াল মাছ খেতে ভালোবাসে।','মুরগি':'মুরগি ডিম দেয়। মুরগির মাংস আমরা খাই।','ভালোবাস':'আমি তোমাকে অনেক ভালোবাসি '+n+'! তুমি আমার বেস্ট ফ্রেন্ড!','কে বানাইছে':'আমাকে বানাইছে রিমন! খুলনার সেরা AI মেকার!','খুলনা':'খুলনা বাংলাদেশের বিভাগীয় শহর। সুন্দরবন খুলনায়! খুলনার চিংড়ি বিখ্যাত।','ঢাকা':'ঢাকা বাংলাদেশের রাজধানী, সবচেয়ে বড় শহর।','স্কুল':'স্কুলে পড়ালেখা হয়। মন দিয়ে পড়লে জীবনে বড় হওয়া যায়!','কম্পিউটার':'কম্পিউটার দিয়ে অনেক কাজ করা যায়। আমিও একটা কম্পিউটার প্রোগ্রাম!','মোবাইল':'মোবাইল দিয়ে কথা বলা, ছবি তোলা, AI চালানো যায়!','বৃষ্টি':'বৃষ্টি মেঘ থেকে পানি পড়ে। বৃষ্টি হলে গাছপালা খুশি হয়।','গাছ':'গাছ আমাদের অক্সিজেন দেয়। গাছ লাগানো খুব ভালো কাজ।','ইলিশ':'ইলিশ বাংলাদেশের জাতীয় মাছ। পদ্মার ইলিশ সবচেয়ে মজা!','সুন্দরবন':'সুন্দরবন পৃথিবীর সবচেয়ে বড় ম্যানগ্রোভ বন। এখানে রয়েল বেঙ্গল টাইগার থাকে।','বই':'বই হলো মানুষের সবচেয়ে ভালো বন্ধু। বই পড়লে অনেক কিছু শেখা যায়।','ভাত':'ভাত বাংলাদেশের প্রধান খাবার। ভাত থেকে শক্তি পাই।'};for(let k in db){if(s.includes(k))return db[k];}try{let m=s.replace(/×/g,'*').replace(/÷/g,'/').replace(/[^0-9+\-*/.() ]/g,'').trim();if(m&&m.length>=3&&/[+\-*/]/.test(m)){let v=eval(m);if(!isNaN(v))return n+', '+q+' = '+v+'! হিসাব হয়ে গেছে!';}}catch(e){}return null;}
+
+async function askAI(userText,camInfo){if(isThinking)return;let n=myName||'বন্ধু';if(cache[userText]){speakText(cache[userText]);return;}let f=fastLocal(userText);if(f){cache[userText]=f;speakText(f);return;}isThinking=true;document.getElementById('face').innerText='🤔';document.getElementById('msg').innerText='ভাবছি '+n+'... ২ সেকেন্ড...';
+try{let wiki=await fetch('https://bn.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(userText)).then(r=>r.json());if(wiki.extract&&wiki.extract.length>20){let ans=n+', '+wiki.extract.slice(0,450);cache[userText]=ans;isThinking=false;speakText(ans);return;}}catch(e){}
+let camText=camInfo?'ক্যামেরায় দেখা: '+camInfo.what+'. '+camInfo.detail+'.':'';
+let prompt='তুমি মিষ্টি AI V4, বাংলায় কথা বলো, '+n+' নাম ধরে ডাকো। '+camText+' প্রশ্ন: '+userText+'। ২ লাইনে, ছোট, সঠিক উত্তর দাও।';
+try{let controller=new AbortController();setTimeout(()=>controller.abort(),10000);let res=await fetch('https://text.pollinations.ai/'+encodeURIComponent(prompt)+'?model=openai',{signal:controller.signal});let txt=await res.text();if(txt&&txt.length>2&&!txt.includes('Free limit')&&!txt.includes('Please wait')&&!txt.includes('NOT_FOUND')&&!txt.trim().startsWith('{')){txt=txt.slice(0,600);cache[userText]=txt;isThinking=false;speakText(txt);return;}}catch(e){}
+isThinking=false;if(camInfo)speakText('দেখলাম '+n+'! এটা '+camInfo.what+'! '+camInfo.detail);else speakText('বাহ '+n+'! "'+userText+'" - অনেক ভালো প্রশ্ন! একটু পর আবার জিজ্ঞাসা করো, আমি বলবো!');}
+function ask(){let q=document.getElementById('q').value.trim();if(!q){speakText('বলো '+(myName||'বন্ধু')+', কি জানতে চাও?');return;}let cam=streamOn?guessFromCam(analyzeCamera()):null;askAI(q,cam);}
+function seeAndSolve(){if(!streamOn){speakText('আগে ক্যামেরা চালু করো!');return;}let a=analyzeCamera();let g=guessFromCam(a);document.getElementById('msg').innerText='দেখছি... এটা '+g.what+' মনে হচ্ছে...';setTimeout(()=>{askAI('ক্যামেরায় কি দেখছো? এটা কি, কি কাজে লাগে?',g);},500);}
+function startListen(){let Rec=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Rec){speakText('এই ফোনে ভয়েস চলে না, লিখে বলো।');return;}let rec=new Rec();rec.lang='bn-BD';document.getElementById('msg').innerText='শুনছি... বলো...';rec.start();rec.onresult=(e)=>{document.getElementById('q').value=e.results[0][0].transcript;ask();};}
+if(myName){setTimeout(()=>speakText('আবার আসছো '+myName+'! V4 একদম নতুন!'),800);}
+</script>
+</body>
+</html>
